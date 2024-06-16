@@ -6,7 +6,7 @@ enum class RelDir { Front, Right, Back, Left };
 enum class TileType { Normal, Victim, Black, Blue };
 
 // -- Motors --
-// Speed of the motor (idk in what it's measured)
+// Speed of the motor (0 = off, 255 = full speed)
 #define MOTOR_SPEED 100
 #define TURN_SPEED 100
 #define TURN_SPEED_QUICK 200
