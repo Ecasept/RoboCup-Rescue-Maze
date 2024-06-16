@@ -68,7 +68,7 @@ int getUltrasonicMedian(ULTRASCHALLSENSOR *us) {
     int minIndex = -1;
     int maxIndex = -1;
     int realIndex = -1;
-    // NOTE: US_POLL_COUNT needs to be divisible by 2
+    // NOTE: US_POLL_COUNT needs to be odd
     int rounds = US_POLL_COUNT;
     while (true) {
         for (int i = 0; i < US_POLL_COUNT; i++) {
