@@ -25,8 +25,8 @@ namespace motor {
 void on(int strength, bool forwards) {
     motorrechtshinten.drehen(strength, forwards);
     motorrechtsvorne.drehen(strength, forwards);
-    motorlinkshinten.drehen(strength + LEFT_COMPENSATION, forwards);
-    motorlinksvorne.drehen(strength + LEFT_COMPENSATION, forwards);
+    motorlinkshinten.drehen(strength, forwards);
+    motorlinksvorne.drehen(strength, forwards);
 }
 
 void ramp() { on(); }
@@ -323,7 +323,7 @@ bool advance() {
 
     int startingDistance = /*getUltrasonicMedian(&usf);*/ usf.auslesen();
     int goalDistance = startingDistance - TILE_SIZE;
-    bool badDriving = startingDistance > MAX_CORRECT_MEASUREMENT;
+    bool badDriving = startingDistance > US_MAX_DISTANCE;
 
     int vertInclination = 0;
     bool ignore = false;
@@ -431,7 +431,6 @@ bool advance() {
         }
         if (badDriving) {
             for (int i = 0; i < 15; i++) {
-                delay(BAD_DRIVING_CYCLE_TIME);
                 auto result =
                     correctOrientation(getDegrees(rd, RelDir::Front), false);
                 if (result.wasWrong) {
@@ -469,10 +468,10 @@ bool advance() {
                 if (currentDistance <= US_THRESHOLD) {
                     Serial.println("Driving Against");
                     motor::on(100, true);
-                    delay(DRIVE_AGAINST);
+                    delay(DRIVE_AGAINST_DELAY);
                     Serial.println("Driving Away");
                     motor::on(100, false);
-                    delay(DRIVE_AWAY);
+                    delay(DRIVE_AWAY_DELAY);
                     // motor::off();
                 }
                 break;

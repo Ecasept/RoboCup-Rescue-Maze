@@ -14,7 +14,8 @@ enum class TileType { Normal, Victim, Black, Blue };
 // -- Ultrasonic sensor --
 // When a distance is a wall (in cm)
 #define US_THRESHOLD 15
-
+// When the robot should stop moving and complete the advance, even if the full
+// 30cm weren't driven
 #define US_TOO_CLOSE 5
 // Size of history of us
 #define US_HISTORY_SIZE 5
@@ -25,7 +26,7 @@ enum class TileType { Normal, Victim, Black, Blue };
 // how many times to mesure us (must be odd)
 #define US_POLL_COUNT 5
 // Maximum amount that the uss can measure correctly (in cm)
-#define MAX_CORRECT_MEASUREMENT 60
+#define US_MAX_DISTANCE 60
 
 // -- Delay --
 // how long to wait between checking orientation when turning (in ms)
@@ -36,11 +37,9 @@ enum class TileType { Normal, Victim, Black, Blue };
 // ms)
 #define VIRT_DELAY 2000
 // how amny ms to drive forward when bumping into wall
-#define DRIVE_AGAINST 2000
+#define DRIVE_AGAINST_DELAY 2000
 // how many ms to drive back when bumping into wall
-#define DRIVE_AWAY 400
-// How long to drive per cycle when in bad driving mode (in ms)
-#define BAD_DRIVING_CYCLE_TIME 0
+#define DRIVE_AWAY_DELAY 400
 
 // -- Debug messages --
 // if we should print how much the robot has turned every time it checks
@@ -53,9 +52,6 @@ enum class TileType { Normal, Victim, Black, Blue };
 #define PRINT_RGB_VALUES false
 
 // -- Other --
-// The left side is slower, so to compensate for that, make it a bit faster by
-// default (in same as MOTOR_SPEED)
-#define LEFT_COMPENSATION 0
 // tile width (in cm)
 #define TILE_SIZE 30
 // minimum average inclination that a ramp needs to be recognized as one (in
