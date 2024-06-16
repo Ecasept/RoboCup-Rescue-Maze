@@ -301,6 +301,27 @@ void unstuck() {
     Serial.println("done");
 }
 
+void advanceRamp() {
+    int vertInclination = 0;
+
+    motor::ramp();
+    while (true) {
+
+        // fix orientation and get orientation
+        auto res = correctOrientation(getDegrees(rd, RelDir::Front));
+        // measure inclination
+        double yOr = res.event.orientation.y;
+        vertInclination = abs(yOr);
+
+        // check if on ramp
+        if (vertInclination >= RAMP_INCLINATION) {
+
+        } else {
+            return;
+        }
+    }
+}
+
 bool advance() {
     // turnToDidTurning = false;
     // turnToCalls = 0;
@@ -315,7 +336,6 @@ bool advance() {
     int goalDistance = startingDistance - TILE_SIZE;
 
     int vertInclination = 0;
-    bool ignore = false;
 
     bool doModulo = false;
 
@@ -341,38 +361,21 @@ bool advance() {
 
         // check if on ramp
         if (vertInclination >= RAMP_INCLINATION) {
-            ignore = true;
-            Serial.println("Ramp detected!");
-        }
-
-        Serial.println(zOr);
-        Serial.println(yOr);
-        if (yOr <= -RAMP_INCLINATION) {
-            Serial.println("Upwards ramp - driving backwards");
-            motor::on(MOTOR_SPEED, false);
-            delay(1750);
-            ignore = false;
-            black_found = true;
-            break;
-        }
-
-        if (ignore) {
-            motor::ramp();
+            advanceRamp();
+            return true;
         }
 
         // check tile color
-        if (!ignore) {
-            TileType tt = hardware::getFloorTileType();
-            if (tt == TileType::Black) {
-                Serial.println("Black tile found!");
-                // drive back to start
-                goalDistance = startingDistance;
-                black_found = true;
-            } else if (tt == TileType::Victim) {
-                if (!victimDiscoveredLastTile) {
-                    victimDiscovered = true;
-                    Serial.println("Victim found and discovered!");
-                }
+        TileType tt = hardware::getFloorTileType();
+        if (tt == TileType::Black) {
+            Serial.println("Black tile found!");
+            // drive back to start
+            goalDistance = startingDistance;
+            black_found = true;
+        } else if (tt == TileType::Victim) {
+            if (!victimDiscoveredLastTile) {
+                victimDiscovered = true;
+                Serial.println("Victim found and discovered!");
             }
         }
 
@@ -385,7 +388,7 @@ bool advance() {
 
         shiftArray(history, US_HISTORY_SIZE);
         history[US_HISTORY_SIZE - 1] = currentDistance;
-        if (util::isNotMoving(history) and !ignore and !black_found) {
+        if (util::isNotMoving(history) and !black_found) {
             unstuck();
             Serial.println("Did not move enough - moving backwards");
             history[0] = 10;
@@ -396,9 +399,7 @@ bool advance() {
         }
 
         // update direction (forward/backward)
-        if (!ignore) {
-            motor::on(MOTOR_SPEED, distanceLeft > 0);
-        }
+        motor::on(MOTOR_SPEED, distanceLeft > 0);
 
         if (PRINT_ADVANCE_PROGRESS) {
             int dif = startingDistance - currentDistance;
@@ -411,7 +412,7 @@ bool advance() {
         }
 
         // if finished or to close to wall, then stop
-        if (((distanceLeft >= -1 and distanceLeft <= 1) and !ignore) or
+        if ((distanceLeft >= -1 and distanceLeft <= 1) or
             currentDistance < US_TOO_CLOSE) {
             // If there is a wall infront, then drive into it
             if (currentDistance <= US_THRESHOLD) {
@@ -427,31 +428,6 @@ bool advance() {
         }
 
         delay(ADVANCE_DELAY);
-    }
-
-    if (ignore) { // was on ramp
-        // for the very rare edge case with ramps where the robot falsely
-        // measures black right infront of the ramp. There is no way to fix this
-        // bug except changing ramp detection. However, this edge case has a sub
-        // edge case (that has an even worse outcome) that we can detect If,
-        // after the false black detection, a ramp is detected in the next cycle
-        // (because the motors didn't stop in time) the robot will continue
-        // going down the ramp (because ignore == true) but success will have
-        // been set to false (because of the black tile), so the robot will go
-        // down the ramp but not update its position (because the position
-        // update depends on success)
-
-        // this sub edge case is detected here (if ignore is true, the robot
-        // must have been a ramp, which means we should ignore any black tile
-        // detection = set success to true) the same thing also goes for red
-        // tiles (though the consequences aren't as grave), so reset them as
-        // well
-
-        // success = true;
-        black_found = false;
-
-        victimDiscovered = false;
-        victimDiscoveredLastTile = false;
     }
 
     motor::off();
