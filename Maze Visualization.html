@@ -1,0 +1,358 @@
+<!--<!DOCTYPE html>
+<html>
+<head>
+    <title>Maze Display</title>
+</head>
+<body>
+    <canvas id="mazeCanvas" width="400" height="400"></canvas>
+    <script>
+        // Define the maze dimensions
+        const mazeWidth = 10;
+        const mazeHeight = 10;
+        const cellSize = 40; // Adjust this to change the size of maze cells
+
+        // Define the array of predetermined walls
+        const predeterminedWalls = [
+            { x: 5, y: 5, up: false, right: true, down: true, left: true },
+            { x: 5, y: 4, up: true, right: false, down: false, left: true },
+            { x: 6, y: 4, up: false, right: false, down: true, left: false },
+            { x: 7, y: 4, up: true, right: true, down: true, left: false },
+			{ x: 6, y: 3, up: true, right: true, down: false, left: true},
+        ];
+
+        // Get the canvas element and its context
+        const canvas = document.getElementById("mazeCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Function to draw a cell
+        function drawCell(x, y, walls) {
+            const cellX = x * cellSize;
+            const cellY = y * cellSize;
+
+            // Draw walls
+            if (walls.up) {
+                ctx.beginPath();
+                ctx.moveTo(cellX, cellY);
+                ctx.lineTo(cellX + cellSize, cellY);
+                ctx.stroke();
+            }
+            if (walls.right) {
+                ctx.beginPath();
+                ctx.moveTo(cellX + cellSize, cellY);
+                ctx.lineTo(cellX + cellSize, cellY + cellSize);
+                ctx.stroke();
+            }
+            if (walls.down) {
+                ctx.beginPath();
+                ctx.moveTo(cellX, cellY + cellSize);
+                ctx.lineTo(cellX + cellSize, cellY + cellSize);
+                ctx.stroke();
+            }
+            if (walls.left) {
+                ctx.beginPath();
+                ctx.moveTo(cellX, cellY);
+                ctx.lineTo(cellX, cellY + cellSize);
+                ctx.stroke();
+            }
+        }
+		// Loop through the predetermined walls and draw the maze
+        for (const wall of predeterminedWalls) {
+            drawCell(wall.x, wall.y, wall);
+        }
+    </script>
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Maze Display</title>
+</head>
+<body>
+    <canvas id="mazeCanvas" width="400" height="400" style="border: 2px solid black;"></canvas>
+        <div>
+        <label for="removeWall">Choose a wall to remove:</label>
+        <select id="removeWall">
+            <option value="up">Up Wall</option>
+            <option value="right">Right Wall</option>
+            <option value="down">Down Wall</option>
+            <option value="left">Left Wall</option>
+        </select>
+		<select id="ttSelect">
+            <option value="TileType::Normal">Normal</option>
+            <option value="TileType::Victim">Victim</option>
+            <option value="TileType::Black">Black</option>
+        </select>
+        <button id="copyCppData">Copy C++ Data</button>
+		        <button id="lockButton">Lock</button>
+				Mode: <b><span id="mode">walls</span></b>
+    </div>
+	    <div>
+        <label for="importCppData">Import C++ Data:</label>
+        <textarea id="importCppData" rows="5" cols="40"></textarea>
+        <button id="importCppDataButton">Import C++ Data</button>
+    </div>
+	<script>
+        // Define the maze dimensions
+        const mazeWidth = 10;
+        const mazeHeight = 10;
+        const cellSize = 40; // Adjust this to change the size of maze cells
+        const removeWallSelect = document.getElementById("removeWall");
+        const tileTypeSelect = document.getElementById("ttSelect");
+		const copyCppDataButton = document.getElementById("copyCppData");
+				const modeDisplay = document.getElementById("mode");
+		const importCppDataButton = document.getElementById("importCppDataButton");
+        const importCppDataTextarea = document.getElementById("importCppData");
+		        const lockButton = document.getElementById("lockButton");
+
+        let isLocked = false; // Flag to track the locked state
+		
+		let robot = {x: 5, y: 5, dir: "up"}
+		let mode = "walls";
+		
+		function toggleMode() {
+		    if (mode === "walls") {mode = "tiletype"}
+			else if (mode === "tiletype") {mode = "walls"}
+			modeDisplay.innerHTML = mode;
+		}
+		
+		document.body.addEventListener("keypress", function(e) {
+		    if (e.key === "m") {toggleMode()}
+		    if (isLocked) {
+			    function advanceRobot() {
+					if (robot.dir == "up") {robot.y -= 1}
+					if (robot.dir == "down") {robot.y += 1}
+					if (robot.dir == "left") {robot.x -= 1}
+					if (robot.dir == "right") {robot.x += 1}
+
+					redrawMaze();
+				}
+				
+				function turnRobot(dir){
+				    if(dir==="right") {
+					    if (robot.dir==="up"){robot.dir="right"}
+						else if (robot.dir==="right"){robot.dir="down"}
+						else if (robot.dir==="down"){robot.dir="left"}
+						else if (robot.dir==="left"){robot.dir="up"}
+					}
+					if(dir==="left") {
+					    console.log("turn left");
+					    if (robot.dir=="up"){robot.dir="left"}
+						else if (robot.dir=="right"){robot.dir="up"}
+						else if (robot.dir=="down"){robot.dir="right"}
+						else if (robot.dir=="left"){robot.dir="down"}
+					}
+					redrawMaze();
+				}
+			    if (e.key === "w") { advanceRobot(); }
+
+				if (e.key === "a") { turnRobot("left"); }
+				if (e.key === "d") { turnRobot("right"); }
+
+			} else {
+				if (e.key === "w") { removeWallSelect.value = "up"; }
+				if (e.key === "s") { removeWallSelect.value = "down"; }
+				if (e.key === "a") { removeWallSelect.value = "left"; }
+				if (e.key === "d") { removeWallSelect.value = "right"; }
+			}
+		});
+
+
+        // Define the array of predetermined walls
+        const predeterminedWalls = [
+            { x: 5, y: 5, up: false, right: true, down: true, left: true },
+            { x: 5, y: 4, up: true, right: false, down: false, left: true },
+            { x: 6, y: 4, up: false, right: false, down: true, left: false },
+            { x: 7, y: 4, up: true, right: true, down: true, left: false },
+            { x: 6, y: 3, up: true, right: true, down: false, left: true },
+        ];
+
+        // Get the canvas element and its context
+        const canvas = document.getElementById("mazeCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Function to draw a cell
+        function drawCell(x, y, walls, robot) {
+            const cellX = x * cellSize;
+            const cellY = y * cellSize;
+
+            // Draw walls
+            if (walls.up) {
+                ctx.beginPath();
+                ctx.moveTo(cellX, cellY);
+                ctx.lineTo(cellX + cellSize, cellY);
+                ctx.stroke();
+            }
+            if (walls.right) {
+                ctx.beginPath();
+                ctx.moveTo(cellX + cellSize, cellY);
+                ctx.lineTo(cellX + cellSize, cellY + cellSize);
+                ctx.stroke();
+            }
+            if (walls.down) {
+                ctx.beginPath();
+                ctx.moveTo(cellX, cellY + cellSize);
+                ctx.lineTo(cellX + cellSize, cellY + cellSize);
+                ctx.stroke();
+            }
+            if (walls.left) {
+                ctx.beginPath();
+                ctx.moveTo(cellX, cellY);
+                ctx.lineTo(cellX, cellY + cellSize);
+                ctx.stroke();
+            }
+			
+			console.log(walls.tileType);
+			if (walls.tileType === "TileType::Victim") {
+			    ctx.fillStyle = "red";
+				ctx.rect(cellX+5, cellY+5, cellSize-5, cellSize-5);
+				ctx.fill();
+				ctx.fillStyle = "#000000ff";
+			}
+			if (walls.tileType === "TileType::Black") {
+				ctx.rect(cellX, cellY, cellSize, cellSize);
+				ctx.fill();
+			}
+			
+			
+			if (robot.x === x && robot.y === y) {
+			    ctx.beginPath();
+				ctx.moveTo(cellX+cellSize/2, cellY+cellSize/2);
+				let endX = cellX+cellSize/2
+				let endY = cellY+cellSize/2
+				if (robot.dir === "up") {endY -= cellSize/3}
+				if (robot.dir === "down") {endY += cellSize/3}
+				if (robot.dir === "left") {endX -= cellSize/3}
+				if (robot.dir === "right") {endX += cellSize/3}
+				ctx.lineTo(endX, endY);
+				ctx.stroke();
+				// Draw circle to show robots direction
+				ctx.beginPath();
+				ctx.arc(endX, endY, 5, 0, 2*Math.PI, false);
+				ctx.fill();
+				ctx.stroke();
+			}
+        }
+
+        // Function to redraw the entire maze
+        function redrawMaze() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Redraw all the remaining walls
+			let drewRobotCell = false;
+            for (const wall of predeterminedWalls) {
+                drawCell(wall.x, wall.y, wall, robot);
+				if (wall.x === robot.x && wall.y === robot.y) {drewRobotCell=true}
+            }
+			if (!drewRobotCell){drawCell(robot.x, robot.y, {x:robot.x,y:robot.y,up:false,down:false,left:false,right:false},robot)}
+        }
+
+        // Add a click event listener to the canvas to remove/add walls
+        canvas.addEventListener("click", function (event) {
+		    if (isLocked) return; // If locked, do not allow modifications
+            const x = Math.floor(event.offsetX / cellSize);
+            const y = Math.floor(event.offsetY / cellSize);
+			
+			const existingWall = predeterminedWalls.find(wall => wall.x === x && wall.y === y);
+			
+			if (mode === "tiletype") {
+			    existingWall.tileType = tileTypeSelect.value;
+			} else {
+				
+				const selectedWall = removeWallSelect.value;
+
+				
+				if (existingWall) {
+					existingWall[selectedWall] = !existingWall[selectedWall];
+				} else {
+					// Create a new cell if it doesn't exist
+					const newCell = { x, y, up: false, right: false, down: false, left: false };
+					newCell[selectedWall] = true;
+					predeterminedWalls.push(newCell);
+				}
+			}
+
+            redrawMaze();
+        });
+		
+		        // Function to format the wall data as C++ code
+        function formatCppData() {
+            const cppData = predeterminedWalls.map(tile => `{${tile.x}, ${tile.y}, ${tile.up}, ${tile.right}, ${tile.down}, ${tile.left}, ${tile.tileType}}`);
+            return cppData.join(",\n");
+        }
+
+        // Add a click event listener to copy C++ data to clipboard
+        copyCppDataButton.addEventListener("click", function () {
+            const cppData = formatCppData();
+
+            const textarea = document.createElement("textarea");
+            textarea.value = cppData;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+
+            alert("C++ data has been copied to the clipboard.");
+        });
+		
+        // Function to import C++ data
+function importCppData() {
+    const inputCppData = importCppDataTextarea.value;
+    try {
+        const importedData = inputCppData.match(/\{[^\}]+\}/g);
+
+        if (importedData) {
+            predeterminedWalls.length = 0;
+
+            for (let data of importedData) {
+			    if (data[0] === "{") {data = data.substr(1)}
+				if (data[data.length-1] === "}") {data = data.substr(0, data.length-1)}
+				values = data.split(",").map(e=>e.trim());
+                if (values.length === 7) {
+                    predeterminedWalls.push({
+                        x: parseInt(values[0], 10),
+                        y: parseInt(values[1], 10),
+                        up: values[2] === "true",
+                        right: values[3] === "true",
+                        down: values[4] === "true",
+                        left: values[5] === "true",
+						tileType: values[6]
+                    });
+                } else {
+                    alert("Invalid C++ data format.");
+                    return;
+                }
+            }
+
+            redrawMaze();
+            alert("C++ data has been imported.");
+        } else {
+            alert("Invalid C++ data format.");
+        }
+    } catch (error) {
+        alert("Invalid C++ data format.");
+		console.log(error);
+    }
+}
+
+
+		
+		importCppDataButton.addEventListener("click", importCppData);
+		lockButton.addEventListener("click", function (event) {
+		    isLocked = !isLocked;
+			if (isLocked) {
+			    lockButton.style.backgroundColor = "red";
+			} else {
+						    lockButton.style.backgroundColor = "";
+
+			}
+		
+		});
+
+        // Initial drawing of the maze
+        redrawMaze();
+    </script>
+</body>
+</html>
