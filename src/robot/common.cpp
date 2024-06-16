@@ -85,19 +85,28 @@ String dstr(CardDir dir) {
 
 float minimum(float a, float b, float c, float d, float e) {
     float smallest = a;
-    if (b<smallest) smallest = b;
-    if (c<smallest) smallest = c;
-    if (d<smallest) smallest = d;
-    if (e<smallest) smallest = e;
+    if (b < smallest)
+        smallest = b;
+    if (c < smallest)
+        smallest = c;
+    if (d < smallest)
+        smallest = d;
+    if (e < smallest)
+        smallest = e;
     return smallest;
 }
 
 bool getTurnDir(int a, int b) {
-    int diff = b-a;
-    if (diff < -180) return true;
-    if (diff < 0) return false;
-    if (diff < 180) return true;
-    else {return false;}
+    int diff = b - a;
+    if (diff < -180)
+        return true;
+    if (diff < 0)
+        return false;
+    if (diff < 180)
+        return true;
+    else {
+        return false;
+    }
 }
 
 double getDegrees(CardDir robotDir, RelDir relDir) {
@@ -111,6 +120,6 @@ double getDegrees(CardDir robotDir, RelDir relDir) {
 
 void shiftArray(int array[], int arrLen) {
     for (int i = 1; i < arrLen; i++) {
-        array[i-1] = array[i];
+        array[i - 1] = array[i];
     }
 }

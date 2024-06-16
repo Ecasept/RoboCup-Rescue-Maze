@@ -20,7 +20,8 @@ class Tile {
   public:
     // If the tile has been visited
     bool visited = false;
-    CardDir origin; // The direction that the robot came from when it entered this tile for the first time
+    CardDir origin; // The direction that the robot came from when it entered
+                    // this tile for the first time
     bool isStartingTile = false;
 };
 
@@ -37,20 +38,21 @@ class MazePlatform {
 */
 
 class Maze {
-    private:
-        //MazePlatform maze0;
-        //MazePlatform maze1;
-        Tile data[MAZE_SIZE][MAZE_SIZE]; // [rows][columns]
-        // returns the tile at x, y
-    public:
-        Tile *get(int x, int y);
-        Tile *getInDir(int x, int y, CardDir cardDir);
-        bool inBounds(int x, int y);
-        bool inBoundsInDir(int x, int y, CardDir cardDir);
+  private:
+    // MazePlatform maze0;
+    // MazePlatform maze1;
+    Tile data[MAZE_SIZE][MAZE_SIZE]; // [rows][columns]
+                                     // returns the tile at x, y
+  public:
+    Tile *get(int x, int y);
+    Tile *getInDir(int x, int y, CardDir cardDir);
+    bool inBounds(int x, int y);
+    bool inBoundsInDir(int x, int y, CardDir cardDir);
 };
 
-bool setPredeterminedWalls(int x, int y, CurrentWalls *walls, TileType *currentTileType);
+bool setPredeterminedWalls(int x, int y, CurrentWalls *walls,
+                           TileType *currentTileType);
 
-//void shiftRamp(int &x, int &y, int &l, CardDir dir);
+// void shiftRamp(int &x, int &y, int &l, CardDir dir);
 
 extern Maze maze;

@@ -29,7 +29,9 @@ void CurrentWalls::set(RelDir relDir, bool value) {
         data.left = value;
         break;
     default:
-        if (TESTING_VIRTUAL) {break;}
+        if (TESTING_VIRTUAL) {
+            break;
+        }
         raise("Tried to set wall at invalid direction");
     };
 }
@@ -77,8 +79,6 @@ Tile *MazePlatform::get(int x, int y, CardDir cardDir) {
     }
 }*/
 
-
-
 Tile *Maze::get(int x, int y) {
     if (!inBounds(x, y)) {
         raise("Tried to get out of bounds tile");
@@ -99,17 +99,15 @@ Tile *Maze::getInDir(int x, int y, CardDir cardDir) {
 }
 
 bool Maze::inBoundsInDir(int x, int y, CardDir cardDir) {
-   shift(x, y, cardDir);
-   //shiftRamp(x, y, layer, cardDir);
-   return inBounds(x, y);
+    shift(x, y, cardDir);
+    // shiftRamp(x, y, layer, cardDir);
+    return inBounds(x, y);
 }
-
-
 
 /*
 void shiftRamp(int &x, int &y, int &l, CardDir dir) {
-    // check if position is at ramp and showing in ramps direction, and if yes, shift to end of ramp
-    if (l == 0 and maze.ramp.x0 == x and maze.ramp.y0 == y) {
+    // check if position is at ramp and showing in ramps direction, and if yes,
+shift to end of ramp if (l == 0 and maze.ramp.x0 == x and maze.ramp.y0 == y) {
         if (dir == maze.ramp.dir0) {
             x = maze.ramp.x1;
             y = maze.ramp.y1;
@@ -129,11 +127,8 @@ void shiftRamp(int &x, int &y, int &l, CardDir dir) {
 }
 */
 
-
-
-
-
-bool setPredeterminedWalls(int x, int y, CurrentWalls* walls, TileType *currentTileType) {
+bool setPredeterminedWalls(int x, int y, CurrentWalls *walls,
+                           TileType *currentTileType) {
     // Define a struct to hold predetermined wall data for various positions
     struct PredeterminedWall {
         int x;
@@ -147,45 +142,44 @@ bool setPredeterminedWalls(int x, int y, CurrentWalls* walls, TileType *currentT
 
     // Define an array of predetermined walls
     PredeterminedWall predeterminedWalls[] = {
-{5, 5, false, true, true, false, TileType::Normal},
-{5, 4, true, false, false, true, TileType::Victim},
-{6, 4, false, false, true, false, TileType::Normal},
-{7, 4, true, true, true, false, TileType::Normal},
-{6, 3, true, true, false, true, TileType::Normal},
-{1, 4, false, false, false, false, TileType::Normal},
-{2, 4, false, false, false, false, TileType::Normal},
-{2, 3, false, false, false, false, TileType::Normal},
-{4, 6, false, false, false, false, TileType::Normal},
-{2, 6, false, false, false, false, TileType::Normal},
-{3, 6, false, true, true, true, TileType::Normal},
-{4, 5, false, false, true, false, TileType::Normal},
-{3, 5, false, false, false, true, TileType::Normal},
-{3, 4, false, false, false, true, TileType::Normal},
-{3, 3, true, true, false, true, TileType::Normal},
-{3, 2, true, false, true, true, TileType::Normal},
-{4, 2, true, false, false, false, TileType::Normal},
-{5, 2, true, false, false, false, TileType::Normal},
-{6, 2, true, false, true, false, TileType::Normal},
-{7, 2, true, false, false, false, TileType::Normal},
-{8, 2, true, false, false, false, TileType::Normal},
-{9, 1, false, false, false, false, TileType::Normal},
-{9, 2, true, true, false, false, TileType::Normal},
-{9, 3, false, true, false, false, TileType::Normal},
-{9, 4, false, true, false, true, TileType::Normal},
-{9, 5, false, true, false, false, TileType::Normal},
-{9, 6, false, true, true, false, TileType::Normal},
-{8, 6, true, false, true, true, TileType::Normal},
-{8, 5, false, false, true, true, TileType::Normal},
-{8, 4, true, true, false, false, TileType::Normal},
-{8, 3, false, false, true, false, TileType::Normal},
-{7, 3, false, false, true, true, TileType::Normal},
-{5, 3, false, true, true, false, TileType::Normal},
-{4, 4, false, true, false, false, TileType::Normal},
-{4, 3, false, false, false, true, TileType::Normal}
-    };
+        {5, 5, false, true, true, false, TileType::Normal},
+        {5, 4, true, false, false, true, TileType::Victim},
+        {6, 4, false, false, true, false, TileType::Normal},
+        {7, 4, true, true, true, false, TileType::Normal},
+        {6, 3, true, true, false, true, TileType::Normal},
+        {1, 4, false, false, false, false, TileType::Normal},
+        {2, 4, false, false, false, false, TileType::Normal},
+        {2, 3, false, false, false, false, TileType::Normal},
+        {4, 6, false, false, false, false, TileType::Normal},
+        {2, 6, false, false, false, false, TileType::Normal},
+        {3, 6, false, true, true, true, TileType::Normal},
+        {4, 5, false, false, true, false, TileType::Normal},
+        {3, 5, false, false, false, true, TileType::Normal},
+        {3, 4, false, false, false, true, TileType::Normal},
+        {3, 3, true, true, false, true, TileType::Normal},
+        {3, 2, true, false, true, true, TileType::Normal},
+        {4, 2, true, false, false, false, TileType::Normal},
+        {5, 2, true, false, false, false, TileType::Normal},
+        {6, 2, true, false, true, false, TileType::Normal},
+        {7, 2, true, false, false, false, TileType::Normal},
+        {8, 2, true, false, false, false, TileType::Normal},
+        {9, 1, false, false, false, false, TileType::Normal},
+        {9, 2, true, true, false, false, TileType::Normal},
+        {9, 3, false, true, false, false, TileType::Normal},
+        {9, 4, false, true, false, true, TileType::Normal},
+        {9, 5, false, true, false, false, TileType::Normal},
+        {9, 6, false, true, true, false, TileType::Normal},
+        {8, 6, true, false, true, true, TileType::Normal},
+        {8, 5, false, false, true, true, TileType::Normal},
+        {8, 4, true, true, false, false, TileType::Normal},
+        {8, 3, false, false, true, false, TileType::Normal},
+        {7, 3, false, false, true, true, TileType::Normal},
+        {5, 3, false, true, true, false, TileType::Normal},
+        {4, 4, false, true, false, false, TileType::Normal},
+        {4, 3, false, false, false, true, TileType::Normal}};
 
     // Iterate through the predetermined walls data
-    for (const PredeterminedWall& wall : predeterminedWalls) {
+    for (const PredeterminedWall &wall : predeterminedWalls) {
         if (x == wall.x && y == wall.y) {
             // Set the walls based on the matching predetermined wall
             walls->set(toRel(CardDir::Up, rd), wall.up);
@@ -193,12 +187,13 @@ bool setPredeterminedWalls(int x, int y, CurrentWalls* walls, TileType *currentT
             walls->set(toRel(CardDir::Left, rd), wall.left);
             walls->set(toRel(CardDir::Right, rd), wall.right);
             *currentTileType = wall.tileType;
-            
+
             Serial.print("Wall Programmed: ");
             Serial.println(wall.up);
             Serial.print("Robot Direction: ");
             Serial.println(static_cast<int>(rd));
-            if (static_cast<int>(toRel(CardDir::Up, rd)) != static_cast<int>(RelDir::Back)) {
+            if (static_cast<int>(toRel(CardDir::Up, rd)) !=
+                static_cast<int>(RelDir::Back)) {
                 Serial.print("Wall Exists: ");
                 Serial.println(walls->get(toRel(CardDir::Up, rd)));
             }
