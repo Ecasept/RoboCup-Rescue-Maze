@@ -63,8 +63,8 @@ void loop() {
 
     // In the beginning, each tile is `unvisited`, once visited `visited`, and
     // once all branches are explored `explored` `free` == no wall
-    // NOTE: I ~think~ know explored isn't even used anymore
     scanSurroundings();
+
     if ((currentTileType == TileType::Victim or victimDiscovered) and
         !maze.get(robotX, robotY)->visited) {
         // motorOn(MOTOR_SPEED, true);
@@ -72,57 +72,9 @@ void loop() {
         victimDiscovered = true;
     }
 
-    auto canGo = [](RelDir relDir) {
-        Serial.print(dstr(relDir));
-        if (currentWalls.get(relDir)) {
-            Serial.println(": Wall Exists");
-            return false;
-        }
-
-        if (maze.getInDir(robotX, robotY, toCard(relDir, rd))->visited) {
-            Serial.println(": Already Visited");
-            return false;
-        }
-
-        Serial.println(": Success");
-        return true;
-    };
-
-    RelDir direction;
-    bool dirFound = false;
-
-    RelDir dirs[] = {RelDir::Front, RelDir::Right, RelDir::Left};
-    for (const auto &dir : dirs) {
-        if (canGo(dir)) {
-            direction = dir;
-            // set origin
-            if (not currentTile->visited) {
-                currentTile->origin = toCard(RelDir::Back, rd);
-                Serial.print("Setting origin to: ");
-                Serial.println(dstr(currentTile->origin));
-            }
-            dirFound = true;
-            break;
-        }
-    }
-
-    if (!dirFound) {
-        if (currentTile->visited) {
-            if (currentTile->isStartingTile) {
-                Serial.println("\nMaze Completed!\n");
-                delay(15000);
-            }
-            // Backtrack
-            Serial.print("Backtracking - following origin: ");
-            Serial.println(dstr(currentTile->origin));
-            direction = toRel(currentTile->origin, rd);
-        } else {
-            // Turn around
-            direction = RelDir::Back;
-        }
-    }
-
     currentTile->visited = true;
+
+    auto direction = decideDirection();
 
     if (direction == RelDir::Back) {
         turn(RelDir::Right);
@@ -199,6 +151,54 @@ void scanSurroundings() {
     Serial.print("  ");
     Serial.println(rightSpace);
     Serial.println("");
+}
+
+RelDir decideDirection() {
+    auto canGo = [](RelDir relDir) {
+        Serial.print(dstr(relDir));
+        if (currentWalls.get(relDir)) {
+            Serial.println(": Wall Exists");
+            return false;
+        }
+
+        if (maze.getInDir(robotX, robotY, toCard(relDir, rd))->visited) {
+            Serial.println(": Already Visited");
+            return false;
+        }
+
+        Serial.println(": Success");
+        return true;
+    };
+
+    RelDir direction;
+    bool dirFound = false;
+
+    RelDir dirs[] = {RelDir::Front, RelDir::Right, RelDir::Left};
+    for (const auto &dir : dirs) {
+        if (canGo(dir)) {
+            // set origin
+            if (not currentTile->visited) {
+                currentTile->origin = toCard(RelDir::Back, rd);
+                Serial.print("Setting origin to: ");
+                Serial.println(dstr(currentTile->origin));
+            }
+            return dir;
+        }
+    }
+
+    if (currentTile->visited) {
+        if (currentTile->isStartingTile) {
+            Serial.println("\nMaze Completed!\n");
+            delay(15000);
+        }
+        // Backtrack
+        Serial.print("Backtracking - following origin: ");
+        Serial.println(dstr(currentTile->origin));
+        return toRel(currentTile->origin, rd);
+    } else {
+        // Turn around
+        return RelDir::Back;
+    }
 }
 
 void getAverages() {
