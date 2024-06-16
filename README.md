@@ -1,7 +1,7 @@
 
-# <div style="display:flex; vertical-align: middle; align-items: center; width: 100%; justify-content: center;"><span>Stahl<sup>3</sup></span></div>
+# <div align="center">Stahl<sup>3</sup></div>
 
-<div style="display:flex; vertical-align: middle; align-items: center; width: 100%; justify-content: center;"><span>Our robot for the RoboCup</span></div>
+<div align="center">Our robot for the RoboCup</div>
 
 ## What is the RoboCup?
 The RoboCup is an international competition, where teams from all over the world meet and develop robots in different leagues. We are competing in the RoboCup Junior Rescue Maze league, where we need to build and program a robot that traverses a maze with obstacles and ramps while reacting to colored tiles on the floor. 
