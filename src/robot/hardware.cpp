@@ -167,23 +167,23 @@ TileType getFloorTileType() {
         }
         float smallest = minimum(rDist, bDist, wDist, gDist, blueDist);
         if (smallest == rDist) {
-            Serial.println("   Detected Victim");
+            Serial.println("Detected Victim");
             return TileType::Victim;
         } else if (smallest == bDist) {
-            Serial.println("   Detected Black");
+            Serial.println("Detected Black");
             return TileType::Black;
         } else if (smallest == blueDist) {
-            Serial.println("   Detected Blue");
+            Serial.println("Detected Blue");
             return TileType::Blue;
         } else {
-            Serial.println("   Detected Normal");
+            Serial.println("Detected Normal");
             return TileType::Normal;
         }
     }
 }
 
 void ejectRescuePacket() {
-    Serial.println("Ejecting rescue kit...");
+    Serial.print("Ejecting rescue kit...");
 
     digitalWrite(VICTIM_PIN, HIGH);
 
@@ -202,6 +202,7 @@ void ejectRescuePacket() {
         digitalWrite(VICTIM_PIN, LOW);
         delay(500);
     }
+    Serial.println("done");
 }
 
 CorrectOrientationResult correctOrientation(int targetOrientation, bool quick) {
@@ -222,15 +223,13 @@ CorrectOrientationResult correctOrientation(int targetOrientation, bool quick) {
         bno.getEvent(&event);
         currentOrientation = event.orientation.x;
 
-        if (PRINT_TURNING_PROGRESS) {
-            Serial.print("   turn: ");
-            Serial.println(currentOrientation);
-        }
-
         if (isCorrect(currentOrientation, targetOrientation))
             break;
 
-        Serial.print("Correcting orientation: ");
+        if (PRINT_TURNING_PROGRESS) {
+            Serial.print("Correcting orientation - currently at: ");
+            Serial.println(currentOrientation);
+        }
 
         bool dir = getTurnDir(currentOrientation, targetOrientation);
 
@@ -277,6 +276,7 @@ void turn(RelDir relDir) {
         raise("Unknown direction to turn towards");
     }
 
+    Serial.print("Turning from ");
     Serial.print(startingOrientation);
     Serial.print(" to ");
     Serial.println(goalOrientation);
@@ -299,15 +299,16 @@ bool isNotMoving(int history[]) {
             maxVal = val;
         }
     }
-    Serial.print("history amp: ");
+    Serial.print("History Amplitude: ");
     Serial.println(maxVal - minVal);
     return ((maxVal - minVal) < US_MAX_AMPLITUDE) and (minVal < 60);
 }
 
 void unstuck() {
-    Serial.println("Moving back");
+    Serial.print("Moving back...");
     motor::on(MOTOR_SPEED, false);
     delay(US_MAX_AMPLITUDE_TIME);
+    Serial.println("done");
 }
 
 bool advance() {
@@ -331,9 +332,9 @@ bool advance() {
 
     // sensors_event_t event;
 
-    Serial.print("Advancing at distance ");
+    Serial.print("Advancing (distance: ");
     Serial.print(startingDistance);
-    Serial.println("...");
+    Serial.println(")...");
 
     motor::on();
     if (TESTING_VIRTUAL) {
@@ -353,13 +354,13 @@ bool advance() {
         if (vertInclination >= RAMP_INCLINATION) {
             ignore = true;
             badDriving = false;
-            Serial.println("   Ramp Detected!!!");
+            Serial.println("Ramp detected!");
         }
 
         Serial.println(zOr);
         Serial.println(yOr);
         if (yOr <= -RAMP_INCLINATION) {
-            Serial.println("Ignoring Up Ramp");
+            Serial.println("Upwards ramp - driving backwards");
             motor::on(MOTOR_SPEED, false);
             delay(1750);
             ignore = false;
@@ -375,13 +376,14 @@ bool advance() {
         if (!ignore) {
             TileType tt = getFloorTileType();
             if (tt == TileType::Black) {
+                Serial.println("Black tile found!");
                 // drive back to start
                 goalDistance = startingDistance;
                 black_found = true;
             } else if (tt == TileType::Victim) {
                 if (!victimDiscoveredLastTile) {
                     victimDiscovered = true;
-                    Serial.println("Victim marked as discovered!");
+                    Serial.println("Victim found and discovered!");
                 }
             }
         }
@@ -405,7 +407,7 @@ bool advance() {
         history[US_HISTORY_SIZE - 1] = currentDistance;
         if (isNotMoving(history) and !ignore and !black_found) {
             unstuck();
-            Serial.println("because of history");
+            Serial.println("Did not move enough - moving backwards");
             history[0] = 10;
             history[1] = 30;
             history[2] = 50;
@@ -420,11 +422,11 @@ bool advance() {
 
         if (PRINT_ADVANCE_PROGRESS) {
             int dif = startingDistance - currentDistance;
-            Serial.print("   d: ");
+            Serial.print("distance: ");
             Serial.print(currentDistance);
-            Serial.print(" - left: ");
+            Serial.print(" - distance left: ");
             Serial.print(distanceLeft);
-            Serial.print(" - vinc: ");
+            Serial.print(" - vertical inclination: ");
             Serial.print(vertInclination);
         }
         if (badDriving) {

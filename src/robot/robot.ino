@@ -84,7 +84,7 @@ void loop() {
             return false;
         }
 
-        Serial.println(": Success!");
+        Serial.println(": Success");
         return true;
     };
 
@@ -98,7 +98,7 @@ void loop() {
             // set origin
             if (not currentTile->visited) {
                 currentTile->origin = toCard(RelDir::Back, rd);
-                Serial.print("Origin: ");
+                Serial.print("Setting origin to: ");
                 Serial.println(dstr(currentTile->origin));
             }
             dirFound = true;
@@ -113,7 +113,7 @@ void loop() {
                 delay(10000);
             }
             // Backtrack
-            Serial.print("Following origin: ");
+            Serial.print("Backtracking - following origin: ");
             Serial.println(dstr(currentTile->origin));
             direction = toRel(currentTile->origin, rd);
         } else {
@@ -146,10 +146,10 @@ void setup() {
     Serial.begin(9600);
     Serial.print("\nSetting up... ");
     if (!bno.begin()) {
-        raise("Could not start magnetic field sensor");
+        raise("\nCould not start magnetic field sensor");
     }
     if (!colorsensor.begin()) {
-        raise("Could not start color sensor");
+        raise("\nCould not start color sensor");
     }
     delay(1000);
     bno.setExtCrystalUse(true);
