@@ -28,7 +28,7 @@ enum class TileType { Normal, Victim, Black, Blue };
 // Maximum amount that the uss can measure correctly (in cm)
 #define US_MAX_DISTANCE 60
 
-// -- Delay --
+// -- Delays --
 // how long to wait between checking orientation when turning (in ms)
 #define TURN_DELAY 10
 // how long to wait between checking distance when advancing (in ms)
