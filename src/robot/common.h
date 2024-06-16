@@ -84,10 +84,6 @@ float minimum(float a, float b, float c, float d, float e);
 // Shift `x` and `y` in direction `dir`
 void shift(int &x, int &y, CardDir dir);
 
-// get correct direction to turn when turning from angle a to angle b
-// true = right, false = left
-bool getTurnDir(int a, int b);
-
 double getDegrees(CardDir robotDir, RelDir relDir);
 
 void shiftArray(int array[], int arrLen);

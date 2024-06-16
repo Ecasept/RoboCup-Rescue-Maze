@@ -96,19 +96,6 @@ float minimum(float a, float b, float c, float d, float e) {
     return smallest;
 }
 
-bool getTurnDir(int a, int b) {
-    int diff = b - a;
-    if (diff < -180)
-        return true;
-    if (diff < 0)
-        return false;
-    if (diff < 180)
-        return true;
-    else {
-        return false;
-    }
-}
-
 double getDegrees(CardDir robotDir, RelDir relDir) {
     int cardinalOffset = static_cast<int>(robotDir);
     int relativeOffset = static_cast<int>(relDir);

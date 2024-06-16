@@ -9,26 +9,20 @@
 // #include <vl53l4cx_class.h>
 
 extern ULTRASCHALLSENSOR usf; // front ultrasonic sensor
+extern ULTRASCHALLSENSOR usr; // right ultrasonic sensor
+extern ULTRASCHALLSENSOR usl; // left ultrasonic sensor
 
-/*#define DEV_I2C Wire
-#define TOF_XSHOT 5
-
-extern VL53L4CX tof;*/
-
-extern ULTRASCHALLSENSOR usr;         // right ultrasonic sensor
-extern ULTRASCHALLSENSOR usl;         // left ultrasonic sensor
 extern Adafruit_TCS34725 colorsensor; // color sensor
 
-extern KA03Motor motorrechtshinten; // back right motor
-extern KA03Motor motorlinkshinten;  // back left motor
-extern KA03Motor motorrechtsvorne;  // front right motor
-extern KA03Motor motorlinksvorne;   // front left motor
+extern KA03Motor motorBackRight;  // back right motor
+extern KA03Motor motorBackLeft;   // back left motor
+extern KA03Motor motorFrontRight; // front right motor
+extern KA03Motor motorFrontLeft;  // front left motor
 
 extern Adafruit_BNO055 bno; // Orientation sensor
 
-extern Servo ejectServo;
-
-#define VICTIM_PIN 12
+extern Servo ejectServo; // Servo for ejecting rescue kits
+#define VICTIM_PIN 12    // PIN to signal victim recognition
 
 namespace motor {
 // Turns the motors of all of the wheels on with strength `strength`. If
@@ -49,38 +43,37 @@ void turn(bool right);
 void turnQuick(bool right);
 } // namespace motor
 
+// Functions directly accessing the sensors
 namespace hardware {
+
+TileType getFloorTileType();
+void ejectRescuePacket();
+int getUltrasonicMedian(ULTRASCHALLSENSOR *us);
+
+} // namespace hardware
+
+namespace util {
+// euclidian distance between two three dimensional points
+float euclideanDistance(float r1, float g1, float b1, int r2, int g2, int b2);
+// get correct direction to turn when turning from angle a to angle b
+// true = right, false = left
+bool getTurnDir(int a, int b);
+bool isNotMoving(int history[]);
+} // namespace util
 
 struct CorrectOrientationResult {
     bool wasWrong;
     sensors_event_t event;
 };
 
-// void setup_hardware();
-
-int getUltrasonicMedian(ULTRASCHALLSENSOR *us);
-
-float euclideanDistance(float r1, float g1, float b1, int r2, int g2, int b2);
-
-TileType getFloorTileType();
-
-void ejectRescuePacket();
-
 // turn to goalOr (in degrees) and return last measured orientation
 // NOTE: Does not turn off motor
 CorrectOrientationResult correctOrientation(int targetOrientation, bool quick);
 
-// Returns the direction in degrees that the robot should be facing after
-// turning in the direction `relDir`, when facing `robotDir`.
-double getGoalOrientation(CardDir robotDir, RelDir relDir);
-
 // Turns the robot in direction `relDir`
 void turn(RelDir relDir);
-
-bool isNotMoving(int history[]);
 
 // unstuck the robot (move it back)
 void unstuck();
 
 bool advance();
-} // namespace hardware

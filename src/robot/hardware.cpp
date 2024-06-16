@@ -57,16 +57,6 @@ void turnQuick(bool right) {
 } // namespace motor
 
 namespace hardware {
-
-/*
-void setup_hardware() {
-  DEV_I2C.begin();
-  tof.begin();
-  tof.VL53L4CX_Off();
-  tof.InitSensor(0x12);+
-  tof.VL53L4CX_StartMeasurement();
-}*/
-
 int getUltrasonicMedian(ULTRASCHALLSENSOR *us) {
     int measurements[US_POLL_COUNT];
     for (int i = 0; i < US_POLL_COUNT; i++) {
@@ -114,18 +104,6 @@ int getUltrasonicMedian(ULTRASCHALLSENSOR *us) {
     int measurement = measurements[realIndex];
     return measurement;
 }
-
-float euclideanDistance(float r1, float g1, float b1, int r2, int g2, int b2) {
-    return sqrt(pow(r1 - r2, 2) + pow(g1 - g2, 2) + pow(b1 - b2, 2));
-}
-
-// Color Averages
-int redAvg[3] = {94, 32, 21};
-float blackAvg[3] = {18, 12, 7};
-float whiteAvg[3] = {193, 182, 107}; //{221, 206, 118};
-float grayAvg[3] = {136, 105, 61};
-float blueAvg[3] = {0, 0, 0};
-
 TileType getFloorTileType() {
     if (TESTING_VIRTUAL) {
         // Only happens when advancingh
@@ -149,15 +127,15 @@ TileType getFloorTileType() {
         // measure distance between measured color and color averages and return
         // color with lowest distance
         float rDist =
-            euclideanDistance(r, g, b, redAvg[0], redAvg[1], redAvg[2]);
-        float bDist =
-            euclideanDistance(r, g, b, blackAvg[0], blackAvg[1], blackAvg[2]);
-        float wDist =
-            euclideanDistance(r, g, b, whiteAvg[0], whiteAvg[1], whiteAvg[2]);
-        float gDist =
-            euclideanDistance(r, g, b, grayAvg[0], grayAvg[1], grayAvg[2]);
-        float blueDist =
-            euclideanDistance(r, g, b, blueAvg[0], blueAvg[1], blueAvg[2]);
+            util::euclideanDistance(r, g, b, redAvg[0], redAvg[1], redAvg[2]);
+        float bDist = util::euclideanDistance(r, g, b, blackAvg[0], blackAvg[1],
+                                              blackAvg[2]);
+        float wDist = util::euclideanDistance(r, g, b, whiteAvg[0], whiteAvg[1],
+                                              whiteAvg[2]);
+        float gDist = util::euclideanDistance(r, g, b, grayAvg[0], grayAvg[1],
+                                              grayAvg[2]);
+        float blueDist = util::euclideanDistance(r, g, b, blueAvg[0],
+                                                 blueAvg[1], blueAvg[2]);
 
         if (PRINT_RGB_VALUES) {
             Serial.println(rDist);
@@ -181,7 +159,6 @@ TileType getFloorTileType() {
         }
     }
 }
-
 void ejectRescuePacket() {
     Serial.print("Ejecting rescue kit...");
 
@@ -204,6 +181,48 @@ void ejectRescuePacket() {
     }
     Serial.println("done");
 }
+} // namespace hardware
+
+namespace util {
+float euclideanDistance(float r1, float g1, float b1, int r2, int g2, int b2) {
+    return sqrt(pow(r1 - r2, 2) + pow(g1 - g2, 2) + pow(b1 - b2, 2));
+}
+bool isNotMoving(int history[]) {
+    int minVal = 10000;
+    int maxVal = 0;
+    for (int i = 0; i < US_HISTORY_SIZE; i++) {
+        int val = history[i];
+        if (val < minVal) {
+            minVal = val;
+        }
+        if (val > maxVal) {
+            maxVal = val;
+        }
+    }
+    Serial.print("History Amplitude: ");
+    Serial.println(maxVal - minVal);
+    return ((maxVal - minVal) < US_MAX_AMPLITUDE) and (minVal < 60);
+}
+bool getTurnDir(int a, int b) {
+    int diff = b - a;
+    if (diff < -180)
+        return true;
+    if (diff < 0)
+        return false;
+    if (diff < 180)
+        return true;
+    else {
+        return false;
+    }
+}
+} // namespace util
+
+// Color Averages
+int redAvg[3] = {94, 32, 21};
+float blackAvg[3] = {18, 12, 7};
+float whiteAvg[3] = {193, 182, 107}; //{221, 206, 118};
+float grayAvg[3] = {136, 105, 61};
+float blueAvg[3] = {0, 0, 0};
 
 CorrectOrientationResult correctOrientation(int targetOrientation, bool quick) {
     auto isCorrect = [](int c, int g) {
@@ -231,7 +250,7 @@ CorrectOrientationResult correctOrientation(int targetOrientation, bool quick) {
             Serial.println(currentOrientation);
         }
 
-        bool dir = getTurnDir(currentOrientation, targetOrientation);
+        bool dir = util::getTurnDir(currentOrientation, targetOrientation);
 
         Serial.print(dir);
 
@@ -285,23 +304,6 @@ void turn(RelDir relDir) {
     correctOrientation(goalOrientation, false);
 
     motor::off();
-}
-
-bool isNotMoving(int history[]) {
-    int minVal = 10000;
-    int maxVal = 0;
-    for (int i = 0; i < US_HISTORY_SIZE; i++) {
-        int val = history[i];
-        if (val < minVal) {
-            minVal = val;
-        }
-        if (val > maxVal) {
-            maxVal = val;
-        }
-    }
-    Serial.print("History Amplitude: ");
-    Serial.println(maxVal - minVal);
-    return ((maxVal - minVal) < US_MAX_AMPLITUDE) and (minVal < 60);
 }
 
 void unstuck() {
@@ -374,7 +376,7 @@ bool advance() {
 
         // check tile color
         if (!ignore) {
-            TileType tt = getFloorTileType();
+            TileType tt = hardware::getFloorTileType();
             if (tt == TileType::Black) {
                 Serial.println("Black tile found!");
                 // drive back to start
@@ -405,7 +407,7 @@ bool advance() {
 
         shiftArray(history, US_HISTORY_SIZE);
         history[US_HISTORY_SIZE - 1] = currentDistance;
-        if (isNotMoving(history) and !ignore and !black_found) {
+        if (util::isNotMoving(history) and !ignore and !black_found) {
             unstuck();
             Serial.println("Did not move enough - moving backwards");
             history[0] = 10;
@@ -438,7 +440,7 @@ bool advance() {
                 }
                 motor::on();
 
-                TileType tt = getFloorTileType();
+                TileType tt = hardware::getFloorTileType();
                 if (tt == TileType::Black) {
                     // drive back to start
                     goalDistance = startingDistance;
@@ -451,7 +453,7 @@ bool advance() {
                 if (black_found) {
                     motor::on(MOTOR_SPEED, false);
                     for (int j = i; j > 0; j--) {
-                        getFloorTileType();
+                        hardware::getFloorTileType();
                     }
                     // delay(1000);
                     // delay((i+1)*BAD_DRIVING_CYCLE_TIME);
@@ -509,5 +511,3 @@ bool advance() {
     motor::off();
     return !black_found;
 }
-
-} // namespace hardware
