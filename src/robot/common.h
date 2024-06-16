@@ -89,4 +89,6 @@ void shift(int &x, int &y, CardDir dir);
 
 double getDegrees(CardDir robotDir, RelDir relDir);
 
+// shift `array` of length `arrLen` one to the left, deleting the first element,
+// and keeping the last element the same (so the last two elements are the same)
 void shiftArray(int array[], int arrLen);

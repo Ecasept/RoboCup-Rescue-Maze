@@ -169,7 +169,6 @@ RelDir decideDirection() {
         Serial.println(": Success");
         return true;
     };
-
     RelDir direction;
     bool dirFound = false;
 

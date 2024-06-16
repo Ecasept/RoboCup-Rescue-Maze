@@ -334,10 +334,6 @@ bool advance() {
 
     int vertInclination = 0;
 
-    bool doModulo = false;
-
-    // sensors_event_t event;
-
     Serial.print("Advancing (distance: ");
     Serial.print(startingDistance);
     Serial.println(")...");
@@ -376,9 +372,7 @@ bool advance() {
 
         int currentDistance =
             usf.auslesen(); // getUltrasonicMedian(&usf);//usf.auslesen();
-
         int distanceLeft = currentDistance - goalDistance;
-
         distanceLeft = distanceLeft % TILE_SIZE;
 
         shiftArray(history, US_HISTORY_SIZE);
