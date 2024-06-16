@@ -352,9 +352,7 @@ bool advance() {
         // fix orientation and get orientation
         auto res = correctOrientation(getDegrees(rd, RelDir::Front));
         // measure inclination
-        double zOr = res.event.orientation.z;
-        double yOr = res.event.orientation.y;
-        vertInclination = abs(yOr);
+        double vertInclination = abs(res.event.orientation.y);
 
         // check if on ramp
         if (vertInclination >= RAMP_INCLINATION) {
