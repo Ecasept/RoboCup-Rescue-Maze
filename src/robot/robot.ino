@@ -110,7 +110,7 @@ void loop() {
         if (currentTile->visited) {
             if (currentTile->isStartingTile) {
                 Serial.println("\nMaze Completed!\n");
-                delay(10000);
+                delay(15000);
             }
             // Backtrack
             Serial.print("Backtracking - following origin: ");
