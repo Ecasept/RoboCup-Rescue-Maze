@@ -313,7 +313,6 @@ bool advance() {
 
     int startingDistance = /*getUltrasonicMedian(&usf);*/ usf.auslesen();
     int goalDistance = startingDistance - TILE_SIZE;
-    bool badDriving = startingDistance > US_MAX_DISTANCE;
 
     int vertInclination = 0;
     bool ignore = false;
@@ -343,7 +342,6 @@ bool advance() {
         // check if on ramp
         if (vertInclination >= RAMP_INCLINATION) {
             ignore = true;
-            badDriving = false;
             Serial.println("Ramp detected!");
         }
 
@@ -382,16 +380,8 @@ bool advance() {
             usf.auslesen(); // getUltrasonicMedian(&usf);//usf.auslesen();
 
         int distanceLeft = currentDistance - goalDistance;
-        // if (abs(distanceLeft-lastDistanceLeft) > DISTANCE_LEFT_TOL) {
-        // badDriving = true;
-        //}
 
-        if ((distanceLeft > 39) and !black_found) {
-            doModulo = true;
-        }
-        if (doModulo) {
-            distanceLeft = distanceLeft % TILE_SIZE;
-        }
+        distanceLeft = distanceLeft % TILE_SIZE;
 
         shiftArray(history, US_HISTORY_SIZE);
         history[US_HISTORY_SIZE - 1] = currentDistance;
@@ -419,52 +409,21 @@ bool advance() {
             Serial.print(" - vertical inclination: ");
             Serial.print(vertInclination);
         }
-        if (badDriving) {
-            for (int i = 0; i < 15; i++) {
-                auto result = correctOrientation(getDegrees(rd, RelDir::Front));
-                if (result.wasWrong) {
-                    i--;
-                }
-                motor::on();
 
-                TileType tt = hardware::getFloorTileType();
-                if (tt == TileType::Black) {
-                    // drive back to start
-                    goalDistance = startingDistance;
-                    black_found = true;
-                } else if (tt == TileType::Victim) {
-                    if (!victimDiscoveredLastTile) {
-                        victimDiscovered = true;
-                    }
-                }
-                if (black_found) {
-                    motor::on(MOTOR_SPEED, false);
-                    for (int j = i; j > 0; j--) {
-                        hardware::getFloorTileType();
-                    }
-                    // delay(1000);
-                    // delay((i+1)*BAD_DRIVING_CYCLE_TIME);
-                    break;
-                }
-                Serial.print(i);
+        // if finished or to close to wall, then stop
+        if (((distanceLeft >= -1 and distanceLeft <= 1) and !ignore) or
+            currentDistance < US_TOO_CLOSE) {
+            // If there is a wall infront, then drive into it
+            if (currentDistance <= US_THRESHOLD) {
+                Serial.println("Driving Against");
+                motor::on(100, true);
+                delay(DRIVE_AGAINST_DELAY);
+                Serial.println("Driving Away");
+                motor::on(100, false);
+                delay(DRIVE_AWAY_DELAY);
+                // motor::off();
             }
             break;
-        } else {
-            // if finished or to close to wall, then stop
-            if (((distanceLeft >= -1 and distanceLeft <= 1) and !ignore) or
-                currentDistance < US_TOO_CLOSE) {
-                // If there is a wall infront, then drive into it
-                if (currentDistance <= US_THRESHOLD) {
-                    Serial.println("Driving Against");
-                    motor::on(100, true);
-                    delay(DRIVE_AGAINST_DELAY);
-                    Serial.println("Driving Away");
-                    motor::on(100, false);
-                    delay(DRIVE_AWAY_DELAY);
-                    // motor::off();
-                }
-                break;
-            }
         }
 
         delay(ADVANCE_DELAY);
