@@ -314,9 +314,7 @@ void advanceRamp() {
         vertInclination = abs(yOr);
 
         // check if on ramp
-        if (vertInclination >= RAMP_INCLINATION) {
-
-        } else {
+        if (vertInclination < RAMP_INCLINATION) {
             return;
         }
     }
