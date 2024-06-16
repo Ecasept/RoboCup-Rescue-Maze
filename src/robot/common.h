@@ -30,7 +30,7 @@ enum class TileType { Normal, Victim, Black, Blue };
 
 // -- Delays --
 // how long to wait between checking orientation when turning (in ms)
-#define TURN_DELAY 10
+#define TURN_DELAY 40
 // how long to wait between checking distance when advancing (in ms)
 #define ADVANCE_DELAY 100
 // time an action takes (turning, advancing) when testing with virtual maze (in
@@ -59,6 +59,9 @@ enum class TileType { Normal, Victim, Black, Blue };
 #define RAMP_INCLINATION 17
 // How manz degrees the robot is allowed to be off
 #define TURN_TOL 2
+// When turning, how many degrees the robot is allowed to be off for the exact
+// turning to activate
+#define EXACT_TURNING_RANGE 10
 
 #define START_X 15
 #define START_Y 15

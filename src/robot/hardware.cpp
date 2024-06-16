@@ -47,18 +47,11 @@ void off() {
     motorlinksvorne.drehen(0, true);
 }
 
-void turn(bool right) {
-    motorrechtsvorne.drehen(TURN_SPEED, !right);
-    motorrechtshinten.drehen(TURN_SPEED, !right);
-    motorlinksvorne.drehen(TURN_SPEED, right);
-    motorlinkshinten.drehen(TURN_SPEED, right);
-}
-
-void turnQuick(bool right) {
-    motorrechtsvorne.drehen(TURN_SPEED_QUICK, !right);
-    motorrechtshinten.drehen(TURN_SPEED_QUICK, !right);
-    motorlinksvorne.drehen(TURN_SPEED_QUICK, right);
-    motorlinkshinten.drehen(TURN_SPEED_QUICK, right);
+void turn(bool right, int speed) {
+    motorrechtsvorne.drehen(speed, !right);
+    motorrechtshinten.drehen(speed, !right);
+    motorlinksvorne.drehen(speed, right);
+    motorlinkshinten.drehen(speed, right);
 }
 
 } // namespace motor
@@ -224,12 +217,12 @@ bool getTurnDir(int a, int b) {
 }
 } // namespace util
 
-CorrectOrientationResult correctOrientation(int targetOrientation, bool quick) {
-    auto isCorrect = [](int c, int g) {
+CorrectOrientationResult correctOrientation(int targetOrientation) {
+    auto getDiff = [](int c, int g) {
         int diff1 = abs(c - g);
         int diff2 = 360 - diff1;
         int diff = diff1 < diff2 ? diff1 : diff2; // min
-        return diff <= TURN_TOL;
+        return diff;
     };
 
     CorrectOrientationResult res;
@@ -242,7 +235,9 @@ CorrectOrientationResult correctOrientation(int targetOrientation, bool quick) {
         bno.getEvent(&event);
         currentOrientation = event.orientation.x;
 
-        if (isCorrect(currentOrientation, targetOrientation))
+        auto diff = getDiff(currentOrientation, targetOrientation);
+
+        if (diff <= TURN_TOL)
             break;
 
         if (PRINT_TURNING_PROGRESS) {
@@ -254,23 +249,17 @@ CorrectOrientationResult correctOrientation(int targetOrientation, bool quick) {
 
         Serial.print(dir);
 
-        if (quick) {
-            motor::turnQuick(dir);
-        } else {
-            motor::turn(dir);
-        }
-
-        if (!quick) {
-            delay(TURN_DELAY + 30);
+        if (diff <= EXACT_TURNING_RANGE) {
+            motor::turn(dir, TURN_SPEED);
+            delay(TURN_DELAY);
             motor::off();
-            delay(10);
+            delay(TURN_DELAY);
+        } else {
+
+            motor::turn(dir, TURN_SPEED_QUICK);
         }
-        delay(TURN_DELAY);
     }
 
-    if (quick) {
-        motor::off();
-    }
     res.event = event;
     return res;
 }
@@ -300,8 +289,7 @@ void turn(RelDir relDir) {
     Serial.print(" to ");
     Serial.println(goalOrientation);
 
-    correctOrientation(goalOrientation, true);
-    correctOrientation(goalOrientation, false);
+    correctOrientation(goalOrientation);
 
     motor::off();
 }
@@ -346,7 +334,7 @@ bool advance() {
     while (true and !TESTING_VIRTUAL) {
 
         // fix orientation and get orientation
-        auto res = correctOrientation(getDegrees(rd, RelDir::Front), false);
+        auto res = correctOrientation(getDegrees(rd, RelDir::Front));
         // measure inclination
         double zOr = res.event.orientation.z;
         double yOr = res.event.orientation.y;
@@ -433,8 +421,7 @@ bool advance() {
         }
         if (badDriving) {
             for (int i = 0; i < 15; i++) {
-                auto result =
-                    correctOrientation(getDegrees(rd, RelDir::Front), false);
+                auto result = correctOrientation(getDegrees(rd, RelDir::Front));
                 if (result.wasWrong) {
                     i--;
                 }

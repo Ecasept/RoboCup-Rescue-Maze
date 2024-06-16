@@ -38,9 +38,8 @@ void off();
 
 // Turns on the motors so that the robot turns right/left, depending on the
 // parameter
-void turn(bool right);
+void turn(bool right, int speed);
 
-void turnQuick(bool right);
 } // namespace motor
 
 // Functions directly accessing the sensors
@@ -68,7 +67,7 @@ struct CorrectOrientationResult {
 
 // turn to goalOr (in degrees) and return last measured orientation
 // NOTE: Does not turn off motor
-CorrectOrientationResult correctOrientation(int targetOrientation, bool quick);
+CorrectOrientationResult correctOrientation(int targetOrientation);
 
 // Turns the robot in direction `relDir`
 void turn(RelDir relDir);
