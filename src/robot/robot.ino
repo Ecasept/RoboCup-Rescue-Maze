@@ -125,20 +125,20 @@ void loop() {
     currentTile->visited = true;
 
     if (direction == RelDir::Back) {
-        hardware::turn(RelDir::Right);
-        hardware::turn(RelDir::Right);
+        turn(RelDir::Right);
+        turn(RelDir::Right);
     } else {
-        hardware::turn(direction);
+        turn(direction);
     }
-    bool success = hardware::advance();
+    bool success = advance();
 
     if (success) {
         shift(robotX, robotY, rd);
     } else {
         maze.getInDir(robotX, robotY, rd)->visited = true;
         Serial.println("success was false, setting black tile to visited");
-        hardware::turn(RelDir::Right);
-        hardware::turn(RelDir::Right);
+        turn(RelDir::Right);
+        turn(RelDir::Right);
     }
 }
 

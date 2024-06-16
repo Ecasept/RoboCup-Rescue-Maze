@@ -20,6 +20,13 @@ Adafruit_BNO055 bno = Adafruit_BNO055(20);
 
 Servo ejectServo;
 
+// Color Averages
+int redAvg[3] = {94, 32, 21};
+float blackAvg[3] = {18, 12, 7};
+float whiteAvg[3] = {193, 182, 107}; //{221, 206, 118};
+float grayAvg[3] = {136, 105, 61};
+float blueAvg[3] = {0, 0, 0};
+
 namespace motor {
 
 void on(int strength, bool forwards) {
@@ -216,13 +223,6 @@ bool getTurnDir(int a, int b) {
     }
 }
 } // namespace util
-
-// Color Averages
-int redAvg[3] = {94, 32, 21};
-float blackAvg[3] = {18, 12, 7};
-float whiteAvg[3] = {193, 182, 107}; //{221, 206, 118};
-float grayAvg[3] = {136, 105, 61};
-float blueAvg[3] = {0, 0, 0};
 
 CorrectOrientationResult correctOrientation(int targetOrientation, bool quick) {
     auto isCorrect = [](int c, int g) {
