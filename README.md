@@ -56,3 +56,7 @@ cp -r src/lib/* ~/Arduino/libraries/
 ```
 
 Once you have installed the required libraries, you can open the project using the Arduino IDE and compile it.
+
+# License
+
+This project is licensed under the GNU General Public License v3.0 or later.
