@@ -10,7 +10,7 @@ The RoboCup is an international competition, where teams from all over the world
 ### Rescue Maze Entry
 - 8th place in RoboCup Junior Vöhringen 2023
 - 5th place in RoboCup Junior Vöhringen 2024
-- ?th place in RoboCup Junior German Open 2024
+- ~20th place in RoboCup Junior German Open 2024
 
 
 ## How the robot works
