@@ -16,7 +16,7 @@ The RoboCup is an international competition, where teams from all over the world
 ## How the robot works
 ### Sensors:
 - 3 **ultrasonic sensors**, on the front and sides, to determine wall placement
-- 1 **color sensor** to deterine tile color
+- 1 **color sensor** to determine tile color
 - 1 **magnetic field sensor** to determine orientation (both horizontal for accurate turning, and vertical for detection of ramps)
 ### Other Equipment:
 - 1 **Servo** to eject rescue kits
@@ -48,7 +48,7 @@ Additionally these custom libraries are required:
 - ka03_driver
 - ultraschall
 
-These can be found under `src/lib/` in this project. To install them you need to copy them to Arduino's library path. For Linux this is located at `~/Arduino/libaries/`.
+These can be found under `src/lib/` in this project. To install them you need to copy them to Arduino's library path. For Linux this is located at `~/Arduino/libraries/`.
 
 You can use this command to copy them:
 ```sh
